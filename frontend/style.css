@@ -1,0 +1,468 @@
+/* ==========================================================
+   Global
+========================================================== */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+
+    font-family: "Segoe UI", Arial, sans-serif;
+
+    background: #f5f7fa;
+
+    color: #222;
+
+    line-height: 1.6;
+
+    min-height: 100vh;
+}
+
+
+/* ==========================================================
+   Container
+========================================================== */
+
+.container {
+
+    width: 95%;
+
+    max-width: 1100px;
+
+    margin: 40px auto;
+
+}
+
+
+/* ==========================================================
+   Header
+========================================================== */
+
+header {
+
+    text-align: center;
+
+    margin-bottom: 35px;
+
+}
+
+header h1 {
+
+    font-size: 2rem;
+
+    margin-bottom: 10px;
+
+    color: #1f3c88;
+
+}
+
+header p {
+
+    color: #666;
+
+    font-size: 1rem;
+
+}
+
+
+/* ==========================================================
+   Cards
+========================================================== */
+
+.card {
+
+    background: white;
+
+    border-radius: 12px;
+
+    padding: 25px;
+
+    margin-bottom: 25px;
+
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+
+}
+
+
+/* ==========================================================
+   Form
+========================================================== */
+
+label {
+
+    display: block;
+
+    margin-bottom: 10px;
+
+    font-weight: bold;
+
+    color: #444;
+
+}
+
+textarea {
+
+    width: 100%;
+
+    resize: vertical;
+
+    min-height: 160px;
+
+    padding: 15px;
+
+    font-size: 15px;
+
+    border-radius: 10px;
+
+    border: 1px solid #ccc;
+
+    outline: none;
+
+    transition: 0.2s;
+
+}
+
+textarea:focus {
+
+    border-color: #1f3c88;
+
+    box-shadow: 0 0 8px rgba(31,60,136,0.25);
+
+}
+
+
+/* ==========================================================
+   Buttons
+========================================================== */
+
+.actions {
+
+    display: flex;
+
+    gap: 15px;
+
+    margin-top: 20px;
+
+}
+
+button {
+
+    border: none;
+
+    border-radius: 8px;
+
+    cursor: pointer;
+
+    font-size: 15px;
+
+    padding: 12px 20px;
+
+    transition: 0.2s;
+
+}
+
+#recommendBtn {
+
+    background: #1f3c88;
+
+    color: white;
+
+}
+
+#recommendBtn:hover {
+
+    background: #16316d;
+
+}
+
+#clearBtn {
+
+    background: #ddd;
+
+}
+
+#clearBtn:hover {
+
+    background: #c9c9c9;
+
+}
+
+
+/* ==========================================================
+   Loading
+========================================================== */
+
+.loading {
+
+    text-align: center;
+
+    margin: 25px 0;
+
+}
+
+.spinner {
+
+    width: 40px;
+
+    height: 40px;
+
+    margin: auto;
+
+    border: 4px solid #ddd;
+
+    border-top: 4px solid #1f3c88;
+
+    border-radius: 50%;
+
+    animation: spin 1s linear infinite;
+
+}
+
+@keyframes spin {
+
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+
+}
+
+.loading p {
+
+    margin-top: 15px;
+
+    color: #666;
+
+}
+
+
+/* ==========================================================
+   Hidden
+========================================================== */
+
+.hidden {
+
+    display: none;
+
+}
+
+
+/* ==========================================================
+   Error
+========================================================== */
+
+.error {
+
+    background: #ffe6e6;
+
+    color: #a00000;
+
+    border-left: 5px solid red;
+
+    padding: 15px;
+
+    border-radius: 8px;
+
+    margin-bottom: 20px;
+
+}
+
+
+/* ==========================================================
+   Summary
+========================================================== */
+
+#summary h2 {
+
+    margin-bottom: 15px;
+
+    color: #1f3c88;
+
+}
+
+#summaryText {
+
+    white-space: pre-wrap;
+
+}
+
+
+/* ==========================================================
+   Recommendation Section
+========================================================== */
+
+#recommendations h2 {
+
+    margin-bottom: 20px;
+
+    color: #1f3c88;
+
+}
+
+
+/* ==========================================================
+   Recommendation Grid
+========================================================== */
+
+.recommendation-list {
+
+    display: grid;
+
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+
+    gap: 20px;
+
+}
+
+
+/* ==========================================================
+   Recommendation Card
+========================================================== */
+
+.recommendation-card {
+
+    background: white;
+
+    border-radius: 12px;
+
+    padding: 20px;
+
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+
+    transition: 0.2s;
+
+}
+
+.recommendation-card:hover {
+
+    transform: translateY(-4px);
+
+}
+
+.recommendation-card h3 {
+
+    color: #1f3c88;
+
+    margin-bottom: 12px;
+
+}
+
+.recommendation-card p {
+
+    margin-bottom: 8px;
+
+    font-size: 14px;
+
+}
+
+.recommendation-card strong {
+
+    color: #333;
+
+}
+
+
+/* ==========================================================
+   Confidence Badge
+========================================================== */
+
+.confidence {
+
+    display: inline-block;
+
+    margin-top: 10px;
+
+    padding: 5px 10px;
+
+    background: #eef3ff;
+
+    color: #1f3c88;
+
+    border-radius: 20px;
+
+    font-size: 13px;
+
+    font-weight: bold;
+
+}
+
+
+/* ==========================================================
+   SHL Link
+========================================================== */
+
+.assessment-link {
+
+    display: inline-block;
+
+    margin-top: 18px;
+
+    padding: 10px 16px;
+
+    text-decoration: none;
+
+    background: #1f3c88;
+
+    color: white;
+
+    border-radius: 8px;
+
+    transition: 0.2s;
+
+}
+
+.assessment-link:hover {
+
+    background: #16316d;
+
+}
+
+
+/* ==========================================================
+   Footer
+========================================================== */
+
+footer {
+
+    margin-top: 50px;
+
+    text-align: center;
+
+    color: #888;
+
+    font-size: 14px;
+
+}
+
+
+/* ==========================================================
+   Responsive
+========================================================== */
+
+@media (max-width: 768px) {
+
+    .actions {
+
+        flex-direction: column;
+
+    }
+
+    button {
+
+        width: 100%;
+
+    }
+
+    header h1 {
+
+        font-size: 1.6rem;
+
+    }
+
+}

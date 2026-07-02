@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>SHL Assessment Recommendation Assistant</title>
+
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+
+<body>
+
+    <div class="container">
+
+        <!-- ====================================================== -->
+        <!-- Header -->
+        <!-- ====================================================== -->
+
+        <header>
+
+            <h1>SHL Assessment Recommendation Assistant</h1>
+
+            <p>
+                Describe your hiring requirements and receive
+                recommended SHL assessments.
+            </p>
+
+        </header>
+
+        <!-- ====================================================== -->
+        <!-- Query Card -->
+        <!-- ====================================================== -->
+
+        <section class="card">
+
+            <label for="query">
+
+                Hiring Requirement
+
+            </label>
+
+            <textarea
+                id="query"
+                rows="6"
+                placeholder="Example:
+Need a Java Developer assessment.
+Mid-level candidate.
+English (USA).
+Under 30 minutes."
+            ></textarea>
+
+            <div class="actions">
+
+                <button id="recommendBtn">
+
+                    Recommend Assessments
+
+                </button>
+
+                <button id="clearBtn">
+
+                    Clear
+
+                </button>
+
+            </div>
+
+        </section>
+
+        <!-- ====================================================== -->
+        <!-- Loading -->
+        <!-- ====================================================== -->
+
+        <section
+            id="loading"
+            class="loading hidden"
+        >
+
+            <div class="spinner"></div>
+
+            <p>
+
+                Searching assessments...
+
+            </p>
+
+        </section>
+
+        <!-- ====================================================== -->
+        <!-- Error -->
+        <!-- ====================================================== -->
+
+        <section
+            id="error"
+            class="error hidden"
+        >
+
+            Something went wrong.
+
+        </section>
+
+        <!-- ====================================================== -->
+        <!-- Summary -->
+        <!-- ====================================================== -->
+
+        <section
+            id="summary"
+            class="card hidden"
+        >
+
+            <h2>
+
+                Recommendation Summary
+
+            </h2>
+
+            <p id="summaryText"></p>
+
+        </section>
+
+        <!-- ====================================================== -->
+        <!-- Recommendations -->
+        <!-- ====================================================== -->
+
+        <section
+            id="recommendations"
+            class="hidden"
+        >
+
+            <h2>
+
+                Recommended Assessments
+
+            </h2>
+
+            <div
+                id="recommendationList"
+                class="recommendation-list"
+            >
+
+            </div>
+
+        </section>
+
+        <!-- ====================================================== -->
+        <!-- Footer -->
+        <!-- ====================================================== -->
+
+        <footer>
+
+            <p>
+
+                Powered by
+                Hybrid Retrieval (BM25 + FAISS)
+                and Groq LLM
+
+            </p>
+
+        </footer>
+
+    </div>
+
+    <script src="/static/script.js"></script>
+
+</body>
+
+</html>

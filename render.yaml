@@ -1,0 +1,20 @@
+services:
+  - type: web
+    name: shl-assessment-recommender
+    runtime: docker
+    # Render builds from the Dockerfile in the repo root.
+    dockerfilePath: ./Dockerfile
+    # Free-tier plan — upgrade to "standard" for production.
+    plan: free
+    # Render injects PORT automatically; the Dockerfile CMD reads it.
+    envVars:
+      - key: GROQ_API_KEY
+        # Set the real value in the Render dashboard → Environment tab.
+        # Never commit the actual key here.
+        sync: false
+      - key: GROQ_MODEL
+        value: llama-3.3-70b-versatile
+    healthCheckPath: /health
+    # Render free tier sleeps after inactivity; the evaluator allows
+    # 2 minutes for the first /health response, which is enough time
+    # for the container to wake and pass the readiness check.
