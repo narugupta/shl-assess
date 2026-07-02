@@ -1,71 +1,61 @@
 # ──────────────────────────────────────────────────────────────
-# Stage 1: dependency builder
+# Single-stage build
+#
+# Why not multi-stage?
+# sentence-transformers (PyTorch) was replaced with fastembed
+# (ONNX Runtime) to stay inside Render's 512 MB free-tier RAM
+# limit. The resulting image is small enough that a single stage
+# is simpler without losing meaningful size benefit.
+#
+# Why pre-compute embeddings at build time?
+# The Retriever reads data/processed/embeddings.npy on startup.
+# Baking it into the image means every cold start is just an
+# in-memory FAISS load (~1 s) rather than a full encode run.
 # ──────────────────────────────────────────────────────────────
-FROM python:3.11-slim AS builder
+FROM python:3.11-slim
 
-WORKDIR /build
-
-# System libs needed to compile faiss-cpu and sentence-transformers
 RUN apt-get update && apt-get install -y --no-install-recommends \
         gcc g++ libgomp1 \
     && rm -rf /var/lib/apt/lists/*
 
-COPY requirements.txt .
-RUN pip install --upgrade pip \
-    && pip install --no-cache-dir --prefix=/install -r requirements.txt
-
-
-# ──────────────────────────────────────────────────────────────
-# Stage 2: model pre-download
-#   Baking the sentence-transformers weights into the image means
-#   the container never has to download them at runtime, which
-#   keeps every cold start inside Render's 2-minute readiness
-#   window regardless of network conditions.
-# ──────────────────────────────────────────────────────────────
-FROM python:3.11-slim AS model-cache
-
-COPY --from=builder /install /usr/local
-
-RUN python - <<'EOF'
-from sentence_transformers import SentenceTransformer
-SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2")
-print("Model downloaded and cached.")
-EOF
-
-
-# ──────────────────────────────────────────────────────────────
-# Stage 3: runtime image
-# ──────────────────────────────────────────────────────────────
-FROM python:3.11-slim AS runtime
-
-# libgomp1 is a runtime dependency of faiss-cpu
-RUN apt-get update && apt-get install -y --no-install-recommends \
-        libgomp1 \
-    && rm -rf /var/lib/apt/lists/*
-
 WORKDIR /app
 
-# Copy installed packages
-COPY --from=builder /install /usr/local
+# fastembed downloads the ONNX model to FASTEMBED_CACHE_PATH.
+# Pinning it inside /app keeps it under the appuser chown below.
+ENV FASTEMBED_CACHE_PATH=/app/.cache/fastembed
+ENV PORT=8000
 
-# Copy Hugging Face model cache so cold starts skip the download
-COPY --from=model-cache /root/.cache /root/.cache
+# Install Python dependencies
+COPY requirements.txt .
+RUN pip install --upgrade pip \
+    && pip install --no-cache-dir -r requirements.txt
 
-# Copy application source
+# Pre-download the ONNX embedding model at build time so the
+# container never makes outbound model-download calls at runtime.
+RUN python - <<'EOF'
+from fastembed import TextEmbedding
+model = TextEmbedding("sentence-transformers/all-MiniLM-L6-v2")
+list(model.embed(["warmup"]))
+print("Embedding model cached.")
+EOF
+
+# Copy application source and data (knowledge base + raw catalog)
 COPY app/       ./app/
 COPY data/      ./data/
 COPY frontend/  ./frontend/
 
-# Pre-computed embeddings live in data/processed/embeddings.npy.
-# The Retriever._load_or_build_embeddings() method will load them
-# on startup instead of recomputing (~60 s saved per cold start).
+# Pre-compute and cache embeddings into data/processed/embeddings.npy.
+# Only the Retriever is instantiated here; no GROQ_API_KEY is needed.
+RUN python - <<'EOF'
+from app.retrieval.retriever import Retriever
+print("Pre-computing embeddings...")
+Retriever()
+print("Embeddings cached.")
+EOF
 
-# Render injects PORT at runtime; default to 8000 for local use.
-ENV PORT=8000
-
-# Non-root user for security
+# Non-root user for security; chown covers model cache + embeddings
 RUN adduser --disabled-password --gecos "" appuser \
-    && chown -R appuser:appuser /app /root/.cache
+    && chown -R appuser:appuser /app
 USER appuser
 
 EXPOSE ${PORT}
