@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>SHL Conversational Recommender — Approach Document</title>
+<style>
+  /* ── Print geometry ─────────────────────────────────────── */
+  @page {
+    size: A4;
+    margin: 18mm 20mm 18mm 20mm;
+  }
+  @media print {
+    body { font-size: 9.5pt; }
+    .page-break { page-break-before: always; }
+  }
+
+  /* ── Base ───────────────────────────────────────────────── */
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', Helvetica, Arial, sans-serif;
+    font-size: 9.5pt;
+    line-height: 1.45;
+    color: #1a1a1a;
+    max-width: 170mm;
+    margin: 0 auto;
+    padding: 10mm 0;
+  }
+
+  /* ── Header ─────────────────────────────────────────────── */
+  header {
+    border-bottom: 2.5px solid #0057b8;
+    padding-bottom: 6px;
+    margin-bottom: 12px;
+  }
+  header h1 {
+    font-size: 15pt;
+    font-weight: 700;
+    color: #0057b8;
+    letter-spacing: -0.3px;
+  }
+  header .meta {
+    font-size: 8pt;
+    color: #555;
+    margin-top: 3px;
+  }
+
+  /* ── Section headings ───────────────────────────────────── */
+  h2 {
+    font-size: 10pt;
+    font-weight: 700;
+    color: #0057b8;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    margin-top: 13px;
+    margin-bottom: 4px;
+    border-left: 3px solid #0057b8;
+    padding-left: 6px;
+  }
+
+  /* ── Body text ──────────────────────────────────────────── */
+  p { margin-bottom: 5px; }
+
+  /* ── Pipeline diagram ───────────────────────────────────── */
+  .pipeline {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 3px;
+    margin: 6px 0 5px;
+    font-size: 8pt;
+  }
+  .step {
+    background: #e8f0fb;
+    border: 1px solid #b0c8ef;
+    border-radius: 4px;
+    padding: 3px 7px;
+    font-weight: 600;
+    color: #0047a0;
+    white-space: nowrap;
+  }
+  .arrow { color: #999; font-size: 9pt; }
+
+  /* ── Two-column layout ──────────────────────────────────── */
+  .cols { display: flex; gap: 14px; margin-top: 4px; }
+  .col  { flex: 1; }
+
+  /* ── Bullet list ────────────────────────────────────────── */
+  ul {
+    list-style: none;
+    padding: 0;
+    margin: 4px 0;
+  }
+  ul li::before { content: "▸ "; color: #0057b8; }
+  ul li { margin-bottom: 3px; }
+
+  /* ── Inline code ────────────────────────────────────────── */
+  code {
+    font-family: 'Consolas', monospace;
+    font-size: 8.5pt;
+    background: #f4f4f4;
+    border-radius: 3px;
+    padding: 0 3px;
+  }
+
+  /* ── Table ──────────────────────────────────────────────── */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 8.5pt;
+    margin-top: 5px;
+  }
+  th {
+    background: #0057b8;
+    color: #fff;
+    text-align: left;
+    padding: 4px 7px;
+    font-weight: 600;
+  }
+  td { padding: 3px 7px; border-bottom: 1px solid #e0e0e0; }
+  tr:nth-child(even) td { background: #f7faff; }
+
+  /* ── Highlight box ──────────────────────────────────────── */
+  .box {
+    background: #fff8e1;
+    border-left: 3px solid #f9a825;
+    padding: 5px 8px;
+    margin: 6px 0;
+    font-size: 8.5pt;
+  }
+
+  /* ── Footer ─────────────────────────────────────────────── */
+  footer {
+    margin-top: 14px;
+    border-top: 1px solid #ccc;
+    padding-top: 5px;
+    font-size: 7.5pt;
+    color: #777;
+    display: flex;
+    justify-content: space-between;
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════ PAGE 1 ══════════════════════════════ -->
+
+<header>
+  <h1>SHL Conversational Assessment Recommender</h1>
+  <div class="meta">Approach Document &nbsp;·&nbsp; AI Intern Take-Home &nbsp;·&nbsp; 2 July 2026</div>
+</header>
+
+<!-- ── Problem framing ──────────────────────────────────────────────── -->
+<h2>Problem Framing</h2>
+<p>
+  Hiring managers arrive with vague intent ("I need something for a Java developer") and no
+  knowledge of SHL vocabulary. The goal is a stateless conversational agent that navigates
+  from that intent to a grounded shortlist through multi-turn dialogue — clarifying when
+  needed, refining on new constraints, comparing on demand, and refusing everything outside
+  the SHL Individual Test Solutions catalog.
+</p>
+
+<!-- ── Architecture ─────────────────────────────────────────────────── -->
+<h2>Architecture</h2>
+
+<div class="pipeline">
+  <span class="step">Guard</span><span class="arrow">→</span>
+  <span class="step">Planner</span><span class="arrow">→</span>
+  <span class="step">Clarifier</span><span class="arrow">→</span>
+  <span class="step">Decision</span><span class="arrow">→</span>
+  <span class="step">Hybrid Retrieval</span><span class="arrow">→</span>
+  <span class="step">Context Builder</span><span class="arrow">→</span>
+  <span class="step">LLM (Groq)</span><span class="arrow">→</span>
+  <span class="step">Verifier</span><span class="arrow">→</span>
+  <span class="step">ChatResponse</span>
+</div>
+
+<p>
+  The API is fully stateless: every <code>POST /chat</code> receives the complete conversation
+  history and rebuilds all state from scratch. No session store is needed, which simplifies
+  deployment and makes the system trivially horizontally scalable.
+</p>
+
+<div class="cols">
+  <div class="col">
+    <ul>
+      <li><strong>Guard Engine</strong> — runs first; blocks prompt injection (15 regex patterns), retrieval manipulation, off-topic queries (40+ patterns), legal questions, and oversized inputs (&gt;5000 chars).</li>
+      <li><strong>Planner</strong> — extracts structured slots (role, seniority, language, duration, skills, categories, comparison items) from every user turn across the full history.</li>
+      <li><strong>Clarifier</strong> — enforces that <em>role</em> is present before retrieval. All other slots are optional.</li>
+    </ul>
+  </div>
+  <div class="col">
+    <ul>
+      <li><strong>Decision Engine</strong> — routes to one of: ASK_CLARIFICATION, RETRIEVE, COMPARE, GREETING, SHOW_HELP, REJECT, UNKNOWN.</li>
+      <li><strong>Turn Cap</strong> — at message 7 (response = turn 8, the evaluator limit) <code>force_recommendation=True</code> bypasses clarification and non-retrieval branches, guaranteeing a shortlist on the last allowed turn.</li>
+      <li><strong>Verifier</strong> — post-generation: flags hallucinated names, invalid URLs, and duplicate items.</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ── Retrieval ─────────────────────────────────────────────────────── -->
+<h2>Retrieval Setup</h2>
+
+<p>
+  The SHL Individual Test Solutions catalog was scraped and normalized into
+  <code>data/processed/knowledge_base.json</code>. Each document stores name, description,
+  URL, duration, languages, job levels, categories, remote flag, and a
+  <code>search_text</code> field (concatenation of all fields) used for indexing.
+</p>
+
+<table>
+  <thead>
+    <tr><th>Component</th><th>Implementation</th><th>Rationale</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Semantic search</td><td>FAISS <code>IndexFlatIP</code> + <code>all-MiniLM-L6-v2</code></td><td>Fast cosine similarity; 384-dim vectors fit in memory on free-tier hosts.</td></tr>
+    <tr><td>Keyword search</td><td>BM25 (<code>rank-bm25</code>)</td><td>Catches exact skill names (e.g. "OPQ32r", "Java 8") that embeddings dilute.</td></tr>
+    <tr><td>Merging</td><td>Equal-weight score fusion: <code>0.5·norm(BM25) + 0.5·norm(FAISS)</code></td><td>Neither signal dominates; tunable without retraining.</td></tr>
+    <tr><td>Filtering</td><td>Post-merge hard filters on language, seniority, duration</td><td>Respects explicit user constraints before re-ranking.</td></tr>
+    <tr><td>Cold-start cache</td><td>Embeddings saved to <code>embeddings.npy</code>; loaded on startup if row count matches</td><td>Drops cold-start encoding time from ~60 s to &lt;1 s.</td></tr>
+  </tbody>
+</table>
+
+<!-- ── Prompt Design ─────────────────────────────────────────────────── -->
+<h2>Prompt Design</h2>
+
+<p>
+  Three prompt templates are used: <strong>RECOMMEND</strong>, <strong>COMPARE</strong>,
+  and <strong>REFINE</strong>. All share a system prompt with ten strict grounding rules
+  ("never invent assessment names / URLs / durations") and a 120-word reply cap to stay
+  within the 30-second per-call timeout. The LLM (Groq <code>llama-3.3-70b-versatile</code>,
+  temperature 0.2) is only asked to <em>explain</em> the retrieved assessments, never to
+  select them — selection is done entirely by the retrieval + filter + ranker stack. The
+  COMPARE template instructs the model to produce a grounded diff from context only and
+  returns an empty <code>recommendations</code> array (informational turn, not a committed
+  shortlist).
+</p>
+
+<!-- ═══════════════════════════════ PAGE 2 ══════════════════════════════ -->
+<div class="page-break"></div>
+
+<!-- ── Agent Design ─────────────────────────────────────────────────── -->
+<h2>Agent Design Decisions</h2>
+
+<div class="cols">
+  <div class="col">
+    <ul>
+      <li><strong>When to clarify</strong>: only when <em>role</em> is absent. Asking for every optional slot (seniority, language, duration) before retrieving proved too slow and annoyed users who had already given a job description.</li>
+      <li><strong>When to recommend</strong>: once role is known, retrieve immediately and let the user refine rather than front-loading questions.</li>
+      <li><strong>When to compare</strong>: whenever the message contains "compare", "difference", "vs", "versus", or "better than" AND at least two catalog items can be resolved from the message.</li>
+    </ul>
+  </div>
+  <div class="col">
+    <ul>
+      <li><strong>When to end</strong>: <code>end_of_conversation: true</code> is set only when a shortlist already existed on the prior turn and the current turn added no new slots (confirmation pattern) — or when the turn cap forces a final answer.</li>
+      <li><strong>Refinement</strong>: free text from all user turns is accumulated for BM25/FAISS, while structured slots accumulate additively (skills/categories are union-merged, other scalars are overwritten by newer values).</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ── Evaluation ────────────────────────────────────────────────────── -->
+<h2>Evaluation Approach</h2>
+
+<p>
+  Evaluation ran at three levels:
+</p>
+
+<table>
+  <thead>
+    <tr><th>Level</th><th>Method</th><th>Signal</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Unit</td>
+      <td>40+ pytest modules covering every component (guards, planner, retrieval, generation)</td>
+      <td>Regression safety net; fails fast on schema violations</td>
+    </tr>
+    <tr>
+      <td>Trace replay</td>
+      <td>Manual replay of all 10 public conversation traces; checked schema, recommendations, and end-of-conversation flags at every turn</td>
+      <td>Approximates Recall@10 and behavior-probe pass-rate</td>
+    </tr>
+    <tr>
+      <td>Adversarial</td>
+      <td>Direct injection of prompt-injection strings, off-topic queries, and edge inputs against the running service</td>
+      <td>Guard coverage and refusal consistency</td>
+    </tr>
+  </tbody>
+</table>
+
+<p style="margin-top:6px;">
+  Improvement was measured by tracking which trace turns changed from "wrong behavior" to
+  "correct behavior" after each fix, using the DEBUG_NOTES as a structured regression log.
+  Recall@10 was estimated by counting catalog-correct items in the top-10 shortlist across
+  the 10 traces before and after retrieval changes.
+</p>
+
+<!-- ── What didn't work ─────────────────────────────────────────────── -->
+<h2>What Didn't Work and How It Was Fixed</h2>
+
+<div class="box">
+  Four critical bugs were found through trace replay and fixed iteratively — none were
+  caught by unit tests alone, which underscores the value of end-to-end trace evaluation.
+</div>
+
+<table>
+  <thead>
+    <tr><th>Bug</th><th>Symptom</th><th>Fix</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Multi-turn context loss</td>
+      <td>Role extracted on turn 1 was gone by turn 3; agent re-asked the same question</td>
+      <td>Preserve full transcript roles in <code>_messages_from_chat_request</code>; accumulate all user turns for <code>free_text</code></td>
+    </tr>
+    <tr>
+      <td>Decision action ignored</td>
+      <td>COMPARE/GREETING/REJECT routed to generic recommend path; "what's the difference between OPQ and GSA?" returned a shortlist, not a comparison</td>
+      <td><code>_run()</code> now branches on <code>planner_result.action</code> before retrieval</td>
+    </tr>
+    <tr>
+      <td><code>comparison_items</code> never populated</td>
+      <td>COMPARE intent stuck asking "which two assessments?" even after user named both</td>
+      <td>Added <code>ComparisonExtractor</code> with alias index (inline identifiers + Title Case initials); wired into slot extraction</td>
+    </tr>
+    <tr>
+      <td>Embeddings recomputed on every start</td>
+      <td>Cold start took ~60 s; risked evaluator timeout</td>
+      <td><code>_load_or_build_embeddings()</code> loads <code>embeddings.npy</code> if row count matches; recomputes and saves only when stale</td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- ── Stack ─────────────────────────────────────────────────────────── -->
+<h2>Stack &amp; Tooling</h2>
+<p>
+  <strong>Runtime:</strong> FastAPI + Uvicorn &nbsp;·&nbsp;
+  <strong>LLM:</strong> Groq <code>llama-3.3-70b-versatile</code> via OpenAI-compatible SDK (free tier, ~1 s latency) &nbsp;·&nbsp;
+  <strong>Embeddings:</strong> <code>sentence-transformers/all-MiniLM-L6-v2</code> &nbsp;·&nbsp;
+  <strong>Vector store:</strong> FAISS CPU &nbsp;·&nbsp;
+  <strong>Keyword index:</strong> BM25 (<code>rank-bm25</code>) &nbsp;·&nbsp;
+  <strong>Deploy:</strong> Docker + Render (free tier) &nbsp;·&nbsp;
+  <strong>AI tools:</strong> GitHub Copilot used for boilerplate; all architecture, prompt, and agent design decisions were made and can be defended independently.
+</p>
+
+<footer>
+  <span>SHL Conversational Assessment Recommender — Approach Document</span>
+  <span>2 July 2026</span>
+</footer>
+
+</body>
+</html>
