@@ -158,17 +158,13 @@ class RecommendResponse(BaseModel):
 class HealthResponse(BaseModel):
     """
     Health endpoint response.
+
+    The evaluator expects exactly {"status": "ok"} — no extra fields.
     """
 
     status: str = "ok"
 
-    version: Optional[str] = None
-
-    planner_ready: Optional[bool] = None
-
-    retriever_ready: Optional[bool] = None
-
-    generator_ready: Optional[bool] = None
+    model_config = {"extra": "forbid"}
 
 
 # ============================================================
